@@ -136,8 +136,8 @@ class MainViewController: UIViewController {
   }
 /// 유튜브는 정책상 동영상자체의 url을 제공하지 않음
   
-  private func playVideoUrl() {
-    let url = URL(string: "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4")!
+  private func playVideoUrl(url: URL) {
+    
     let player = AVPlayer(url: url)
 ///player 에 url을 담은 AVPlayer 를 넣어준후
     let playerViewController = AVPlayerViewController()
@@ -178,27 +178,32 @@ extension MainViewController: UICollectionViewDelegate{
     switch Section(rawValue: indexPath.section) {
       
     case .popularMovies:
-      viewModel.fetchTrailerKey(movie: popularMovies[indexPath.row])
+      viewModel.fetchTrailerKey(movie: popularMovies[indexPath.row]) ///fethTrailerKey를 구독하는
         .observe(on: MainScheduler.instance)
-        .subscribe(onSuccess: { [weak self] key in
-          self?.playVideoUrl()
-        }, onFailure: { error in
-          print(#function,"동영상재생에러: \(error)")
+      ///
+        .subscribe(onSuccess: { [weak self] key in ///방출 하는 키를 못주고 있는 상황 , 네트워크 쪽에 문제가 있을수 이ㅆ겟다
+//          let url = URL(string: "https://www.youtube.com/watch?v=\(key)")!
+//          self?.playVideoUrl(url: url)
+         
+          self?.navigationController?.pushViewController(YoutubeViewController(key: key), animated: true)
+          /// view랑 viewmodel 구독 & 방출  어떤걸 구독하고있냐
+        }, onFailure: { error in ///실패를 방출
+          print(#function,"동영상 재생 에러: \(error)")
         }).disposed(by: disposeBag)
       
     case .topRatedMovies:
       viewModel.fetchTrailerKey(movie: topRatedMovies[indexPath.row])
         .observe(on: MainScheduler.instance)
         .subscribe(onSuccess: {[weak self] key in
-          self?.playVideoUrl()
-        }, onFailure: { error in
+                  }, onFailure: { error in
           print(#function,"동영상 재생 에라: \(error)")
         }).disposed(by: disposeBag)
+      
     case .upcomingMovies:
       viewModel.fetchTrailerKey(movie: upcomingMovies[indexPath.row])
         .observe(on: MainScheduler.instance)
         .subscribe(onSuccess: {[weak self] key in
-          self?.playVideoUrl()
+         
         }, onFailure: { error in
           print(#function,"동영상 재생 에러: \(error)")
         }).disposed(by: disposeBag)

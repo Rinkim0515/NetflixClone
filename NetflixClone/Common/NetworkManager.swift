@@ -32,7 +32,15 @@ class NetworkManager {
         guard let data = data,
               let response = response as? HTTPURLResponse,(200..<300).contains(response.statusCode)
                 
-        else { observer( .failure( NetworkError.dataFetchFail) ) ; return }
+        else {
+          if let response = response as? HTTPURLResponse {
+            print("responseStatus값은: ",response.statusCode)
+          } else {
+            print("else")
+          }
+          
+          observer( .failure( NetworkError.dataFetchFail) ) ; return }
+        // 여기가 문제엿구나
         
         do {
           let decodeData = try JSONDecoder().decode(T.self, from: data)
