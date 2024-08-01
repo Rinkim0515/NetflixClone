@@ -8,12 +8,17 @@
 import UIKit
 import SnapKit
 import RxSwift
+import AVKit
+import AVFoundation
+
 
 class MainViewController: UIViewController {
   
   private let viewModel = MainViewModel()
-  private let disposeBag = DisposeBag() /// observable을 담는 변수
-  //MARK: Movie타입의 정보들이 변수에 배열식으로 차례대로 담긴다.
+  /// observable을 담는 변수
+  private let disposeBag = DisposeBag()
+  
+  /// Movie타입의 정보들이 변수에 배열식으로 차례대로 담긴다.
   private var popularMovies = [Movie]()
   private var topRatedMovies = [Movie]()
   private var upcomingMovies = [Movie]()
@@ -94,7 +99,7 @@ class MainViewController: UIViewController {
     section.orthogonalScrollingBehavior = .continuous
     section.interGroupSpacing = 10
     section.contentInsets = .init(top: 10, leading: 10, bottom: 20, trailing: 10)
-    
+    /// 헤더의 영역
     let headerSize = NSCollectionLayoutSize(
       widthDimension: .fractionalWidth(1.0),
       heightDimension: .estimated(44)
@@ -129,25 +134,82 @@ class MainViewController: UIViewController {
       $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
     }
   }
+/// 유튜브는 정책상 동영상자체의 url을 제공하지 않음
+  
+  private func playVideoUrl() {
+    let url = URL(string: "https://storage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4")!
+    let player = AVPlayer(url: url)
+///player 에 url을 담은 AVPlayer 를 넣어준후
+    let playerViewController = AVPlayerViewController()
+///동영상을 재생할수있는 ViewController 생성
+    playerViewController.player = player
+///playerViewController에 있는 player변수에 방금 url을 담은 player를 할당
+    present(playerViewController, animated: true) {
+      player.play()
+  ///player의 변수를 .play로 실행함 (재생)
+    }
+    
+  }
   
   enum Section: Int, CaseIterable {
-    case PopularMovies //CaseItrerable로 인해서 rawvalue가 차례대로 0, 1, 2 로 들어감
+    case popularMovies //CaseItrerable로 인해서 rawvalue가 차례대로 0, 1, 2 로 들어감
     case topRatedMovies
     case upcomingMovies
     
     var title: String {
       switch self {
-      case .PopularMovies: return "이시간 핫한 영화"
+      case .popularMovies: return "이시간 핫한 영화"
       case .topRatedMovies: return "가장 평점이 높은 영화"
       case .upcomingMovies: return "곧 개봉되는 영화"
       }
     }
   }
+  
+  
+  
 
 }
 
 
-extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension MainViewController: UICollectionViewDelegate{
+/// 셀 클릭시 터치 이벤트
+  func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+    
+    switch Section(rawValue: indexPath.section) {
+      
+    case .popularMovies:
+      viewModel.fetchTrailerKey(movie: popularMovies[indexPath.row])
+        .observe(on: MainScheduler.instance)
+        .subscribe(onSuccess: { [weak self] key in
+          self?.playVideoUrl()
+        }, onFailure: { error in
+          print(#function,"동영상재생에러: \(error)")
+        }).disposed(by: disposeBag)
+      
+    case .topRatedMovies:
+      viewModel.fetchTrailerKey(movie: topRatedMovies[indexPath.row])
+        .observe(on: MainScheduler.instance)
+        .subscribe(onSuccess: {[weak self] key in
+          self?.playVideoUrl()
+        }, onFailure: { error in
+          print(#function,"동영상 재생 에라: \(error)")
+        }).disposed(by: disposeBag)
+    case .upcomingMovies:
+      viewModel.fetchTrailerKey(movie: upcomingMovies[indexPath.row])
+        .observe(on: MainScheduler.instance)
+        .subscribe(onSuccess: {[weak self] key in
+          self?.playVideoUrl()
+        }, onFailure: { error in
+          print(#function,"동영상 재생 에러: \(error)")
+        }).disposed(by: disposeBag)
+    default: return
+    }
+  }
+
+  
+}
+
+extension MainViewController: UICollectionViewDataSource {
   
 
   
@@ -158,7 +220,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
     }
     
     switch Section(rawValue: indexPath.section){
-    case .PopularMovies: cell.configure(with: popularMovies[indexPath.row])
+    case .popularMovies: cell.configure(with: popularMovies[indexPath.row])
     case .topRatedMovies: cell.configure(with: topRatedMovies[indexPath.row])
     case .upcomingMovies: cell.configure(with: upcomingMovies[indexPath.row])
     default: return UICollectionViewCell()
@@ -187,7 +249,7 @@ extension MainViewController: UICollectionViewDelegate, UICollectionViewDataSour
   //MARK: CollectionViewCell 안에 들어가는 섹션에 몇개가 들어가는지 설정하는 메서드
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
     switch Section(rawValue: section) {
-    case .PopularMovies: return popularMovies.count
+    case .popularMovies: return popularMovies.count
     case .topRatedMovies: return topRatedMovies.count
     case .upcomingMovies: return upcomingMovies.count
     default: return 0

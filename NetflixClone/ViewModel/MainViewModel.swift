@@ -10,9 +10,9 @@ import RxSwift
 //MARK: 비즈니스 로직을 작성하는
 
 class MainViewModel {
-  private let API_KEY = "645e86fb7592fb03db60c09f1419e536"
+  static let API_KEY = "645e86fb7592fb03db60c09f1419e536"
   private let disposeBag = DisposeBag()
-  private let BASE_URL = "https://api.themoviedb.org/3/"
+  static let BASE_URL = "https://api.themoviedb.org/3/"
   
   let popularMovieSubject = BehaviorSubject(value: [Movie]())
   let topRatedMovieSubject = BehaviorSubject(value: [Movie]())
@@ -27,7 +27,7 @@ class MainViewModel {
   
   
   func fetchPopularMovie(){
-    guard let url = URL(string: "\(BASE_URL)movie/popular?api_key=\(API_KEY)")
+    guard let url = URL(string: "\(MainViewModel.BASE_URL)movie/popular?api_key=\(MainViewModel.API_KEY)")
     else{ popularMovieSubject.onError(NetworkError.invalidUrl) ; return }
     
     NetworkManager.shared.fetch(url: url)
@@ -40,7 +40,7 @@ class MainViewModel {
   }
   
   func fetchTopRatedMovie(){
-    guard let url = URL(string: "\(BASE_URL)movie/top_rated?api_key=\(API_KEY)")
+    guard let url = URL(string: "\(MainViewModel.BASE_URL)movie/top_rated?api_key=\(MainViewModel.API_KEY)")
     else{ topRatedMovieSubject.onError(NetworkError.invalidUrl) ; return }
     
     NetworkManager.shared.fetch(url: url)
@@ -52,7 +52,7 @@ class MainViewModel {
   }
   
   func fetchUpcomingMovie(){
-    guard let url = URL(string: "\(BASE_URL)movie/upcoming?api_key=\(API_KEY)")
+    guard let url = URL(string: "\(MainViewModel.BASE_URL)movie/upcoming?api_key=\(MainViewModel.API_KEY)")
     else{ upcomingMovieSubject.onError(NetworkError.invalidUrl) ; return}
     
     NetworkManager.shared.fetch(url: url)
@@ -65,4 +65,24 @@ class MainViewModel {
       
     
   }
+  
+  ///동영상의 키값을 return 하는 method
+    func fetchTrailerKey(movie: Movie) -> Single<String> {
+      guard let movieId = movie.id else { return Single.error (NetworkError.dataFetchFail) }
+      
+      let urlString =
+      "\(MainViewModel.BASE_URL)/movie/\(movieId)/videos?api_key=\(MainViewModel.API_KEY)"
+      
+      guard let url = URL(string: urlString) else { return Single.error(NetworkError.invalidUrl)}
+     
+      return NetworkManager.shared.fetch(url: url)
+        .flatMap{ (videoResponse: VideoResponse) -> Single<String> in
+          if let trailer = videoResponse.results.first(where: { $0.type == "Trailer" && $0.site == "YouTube"}) {
+            guard let key = trailer.key else { return Single.error(NetworkError.dataFetchFail)}
+            return Single.just(key)
+          } else {
+            print(#function)
+            return Single.error(NetworkError.dataFetchFail)
+          } }
+    }
 }

@@ -8,7 +8,6 @@
 import UIKit
 
 //MARK: SectionHeaderView 셀위에 올라가는 타이틀 위치
-
 class SectionHeaderVIew: UICollectionReusableView {
   static let id = "SectionHeaderVIew"
   

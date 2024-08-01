@@ -31,6 +31,13 @@ class PosterCell: UICollectionViewCell {
     fatalError("init(coder:) has not been implemented")
   }
   
+  //MARK: 셀은 재사용되기때문에 버벅임을 줄여주는 메서드
+  override func prepareForReuse() {
+    super.prepareForReuse()
+    imageView.image = nil
+  }
+  
+  
   func configure(with movie: Movie) {
     guard let posterPath = movie.posterPath else { return }
     
