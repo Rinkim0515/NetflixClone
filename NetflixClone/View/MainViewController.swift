@@ -15,18 +15,14 @@ import AVFoundation
 class MainViewController: UIViewController {
   
   private let viewModel = MainViewModel()
-  /// observable을 담는 변수
+/// observable을 담는 변수
   private let disposeBag = DisposeBag()
   
-  /// Movie타입의 정보들이 변수에 배열식으로 차례대로 담긴다.
+/// Movie타입의 정보들을 담을수 있는 변수들
   private var popularMovies = [Movie]()
   private var topRatedMovies = [Movie]()
   private var upcomingMovies = [Movie]()
-  
-  
-  
-  
-  
+/// 로고레이블
   private let logoLabel = {
     let lb = UILabel()
     lb.text = "NETFLIX"
@@ -34,7 +30,7 @@ class MainViewController: UIViewController {
     lb.font = UIFont.systemFont(ofSize: 28, weight: .heavy)
     return lb
   }()
-  
+///
   lazy var collectionView = {
     let cv = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
     cv.register(PosterCell.self, forCellWithReuseIdentifier: PosterCell.id)

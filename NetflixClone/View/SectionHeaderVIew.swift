@@ -20,7 +20,6 @@ class SectionHeaderVIew: UICollectionReusableView {
   
   override init(frame: CGRect) {
     super.init(frame: frame)
-    
     setupUI()
   }
   
@@ -28,11 +27,9 @@ class SectionHeaderVIew: UICollectionReusableView {
     fatalError("init(coder:) has not been implemented")
   }
   
-  private func setupUI(){ //1회성은 setup
-    
+  private func setupUI(){
     addSubview(titleLabel)
     titleLabel.translatesAutoresizingMaskIntoConstraints = false
-    
     NSLayoutConstraint.activate([
       titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
       titleLabel.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),

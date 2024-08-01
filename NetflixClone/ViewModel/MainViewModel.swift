@@ -12,6 +12,8 @@ import RxSwift
 class MainViewModel {
   static let API_KEY = "645e86fb7592fb03db60c09f1419e536"
   private let disposeBag = DisposeBag()
+  
+  /// url 관리시에 도메인과 버전 패스 등을 나눈다음 합친것을 baseurl로 쓰는방식
   static let BASE_URL = "https://api.themoviedb.org/3" /// 패스도 관리할필요가 있음 링크 는 일괄적으로 처리할수 있도록 룰을 정하는 게 좋겠다. 베이스 URL 과 버전을 나눠서  합친게 baseurl 로 -> 추후의 관리 를 위함  // 문제가 발생한 부분에서 더 쪼개서 찾아보는 // 오류 가능성의 부분 // 흐름의 역순으로 다시 돌아가는것 //
   
   let popularMovieSubject = BehaviorSubject(value: [Movie]())

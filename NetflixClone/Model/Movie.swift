@@ -12,10 +12,12 @@ struct Constants {
 }
 
 struct MovieResponse: Codable {
-  let results: [Movie] // 껍데기 구조체 
+///객체이름자체가 results로 오고 배열식으로 옴
+  let results: [Movie]
   
 }
 
+/// 실제로 받을 데이터들, 이 데이터의 배열이 results안에 들어있음
 struct Movie: Codable {
   
   let id: Int?

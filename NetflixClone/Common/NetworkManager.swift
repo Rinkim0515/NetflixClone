@@ -7,6 +7,8 @@
 
 import Foundation
 import RxSwift
+
+/// 네트워킹의 실패 케이스
 enum NetworkError: Error {
   case invalidUrl
   case dataFetchFail
@@ -16,8 +18,8 @@ enum NetworkError: Error {
 
 
 class NetworkManager {
+/// 싱글톤패턴 private init() {} 으로 객체 생성 막기
   static let shared = NetworkManager()
-  
   private init(){}
   
   func fetch<T: Decodable>(url: URL) -> Single<T> {
